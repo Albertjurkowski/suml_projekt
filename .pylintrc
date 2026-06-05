@@ -1,0 +1,39 @@
+[MAIN]
+# Use multiple processes to speed up pylint
+jobs=1
+
+# Minimum Python version
+py-version=3.10
+
+[MESSAGES CONTROL]
+# Disable specific messages that are too strict for data science projects
+disable=
+    too-few-public-methods,
+    import-error,
+    too-many-arguments,
+    too-many-locals,
+    too-many-instance-attributes,
+    wrong-import-position,
+    import-outside-toplevel
+
+[FORMAT]
+# Maximum number of characters on a single line
+max-line-length=100
+
+# Maximum number of lines in a module
+max-module-lines=500
+
+[BASIC]
+# Good variable names which should always be accepted
+good-names=i,j,k,x,y,X,df,ax,fig,e
+
+[DESIGN]
+# Maximum number of arguments for function / method
+max-args=10
+
+# Maximum number of return / yield for function / method body
+max-returns=6
+
+[SIMILARITIES]
+# Minimum lines number of a similarity
+min-similarity-lines=6
