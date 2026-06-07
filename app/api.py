@@ -7,10 +7,15 @@ Uruchomienie: uvicorn app.api:app --reload --port 8000
 
 import os
 import sys
+import uvicorn
+import webbrowser
+import threading
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
+from fastapi.responses import FileResponse
+from starlette.staticfiles import StaticFiles
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -39,10 +44,10 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 class HouseFeatures(BaseModel):
     """Schemat danych wejściowych — cechy nieruchomości."""
@@ -150,3 +155,35 @@ async def predict(features: HouseFeatures):
         )
     except Exception as error:
         raise HTTPException(status_code=500, detail=str(error)) from error
+
+def get_resource_path(relative_path):
+    """Zwraca ścieżkę do plików, działająca w IDE i po spakowaniu do .exe"""
+    if hasattr(sys, '_MEIPASS'):
+        # Ścieżka podczas działania z pliku .exe
+        return os.path.join(sys._MEIPASS, relative_path)
+    # Ścieżka podczas standardowego uruchamiania w PyCharmie
+    return os.path.join(os.path.dirname(__file__), relative_path)
+
+static_path = get_resource_path("static")
+
+
+
+app.mount("/static", StaticFiles(directory=static_path), name="static")
+
+@app.get("/")
+def read_root():
+    index_file = os.path.join(static_path, "index.html")
+    # Zwracanie logu z wykorzystaniem str.format()
+    print("Serwowanie pliku: {}".format(index_file))
+    return FileResponse(index_file)
+
+
+if __name__ == "__main__":
+    def open_browser():
+        webbrowser.open("http://127.0.0.1:8000")
+
+
+    threading.Timer(1.5, open_browser).start()
+
+    # Wyłączamy domyślną konfigurację logów uvicorna
+    uvicorn.run(app, host="127.0.0.1", port=8000, log_config=None)

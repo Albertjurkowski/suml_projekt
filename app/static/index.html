@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wycena Nieruchomości</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>📋 Dane nieruchomości</h1>
+
+        <form id="predictionForm">
+            <div class="columns">
+                <div class="column">
+                    <h3>📐 Wymiary i powierzchnia</h3>
+                    <label for="grLivArea">Powierzchnia mieszkalna (stopy kw.):</label>
+                    <input type="number" id="grLivArea" name="grLivArea" min="300" max="5000" value="1500" required>
+
+                    <label for="totalBsmtSf">Powierzchnia piwnicy (stopy kw.):</label>
+                    <input type="number" id="totalBsmtSf" name="totalBsmtSf" min="0" max="3000" value="800">
+
+                    <h3>🚗 Garaż</h3>
+                    <label for="garageCars">Pojemność garażu (samochody):</label>
+                    <select id="garageCars" name="garageCars">
+                        <option value="0">0</option>
+                        <option value="1">1</option>
+                        <option value="2" selected>2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                    </select>
+                </div>
+
+                <div class="column">
+                    <h3>🏠 Parametry budynku</h3>
+                    <label for="overallQual">Ogólna jakość (1-10):</label>
+                    <input type="number" id="overallQual" name="overallQual" min="1" max="10" value="6">
+
+                    <label for="yearBuilt">Rok budowy:</label>
+                    <input type="number" id="yearBuilt" name="yearBuilt" min="1870" max="2025" value="1990">
+
+                    <h3>⭐ Jakość elementów</h3>
+                    <label for="kitchenQual">Jakość kuchni:</label>
+                    <select id="kitchenQual" name="kitchenQual">
+                        <option value="Ex">Doskonała</option>
+                        <option value="Gd">Dobra</option>
+                        <option value="TA" selected>Średnia</option>
+                        <option value="Fa">Dostateczna</option>
+                        <option value="Po">Słaba</option>
+                    </select>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn">Oblicz Wycenę</button>
+        </form>
+
+        <div id="resultSection" class="result-box hidden">
+            <h2>💰 Wynik wyceny</h2>
+            <p id="priceUSD" class="price-usd"></p>
+            <p id="pricePLN" class="price-pln"></p>
+        </div>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
