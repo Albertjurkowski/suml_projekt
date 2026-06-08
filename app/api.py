@@ -10,6 +10,7 @@ import sys
 import uvicorn
 import webbrowser
 import threading
+import numpy as np
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -21,9 +22,9 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app.config import MODEL_PATH
 from data.download import load_training_data
-from data.preprocess import prepare_single_input
+from data.preprocess import prepare_single_input, prepare_data
 from model.predict import predict_price
-from model.train import train_model
+from model.train import train_model, get_feature_importance
 
 
 @asynccontextmanager
@@ -78,6 +79,7 @@ class PredictionResponse(BaseModel):
     predicted_price_pln: float = Field(description="Przewidywana cena w PLN (kurs ~4.0)")
     price_range_low: float = Field(description="Dolna granica zakresu (−15%)")
     price_range_high: float = Field(description="Górna granica zakresu (+15%)")
+    percentile: float = Field(description="Percentyl ceny w zbiorze danych")
 
 
 class HealthResponse(BaseModel):
@@ -146,15 +148,114 @@ async def predict(features: HouseFeatures):
         prepared = prepare_single_input(input_dict, raw_data)
         price = predict_price(prepared)
 
+        prices = raw_data["SalePrice"].dropna().values
+        percentile = float(np.sum(prices <= price) / len(prices) * 100)
+
         margin = price * 0.15
         return PredictionResponse(
             predicted_price_usd=round(price, 2),
             predicted_price_pln=round(price * 4.0, 2),
             price_range_low=round(price - margin, 2),
             price_range_high=round(price + margin, 2),
+            percentile=round(percentile, 1),
         )
     except Exception as error:
         raise HTTPException(status_code=500, detail=str(error)) from error
+
+@app.post("/api/similar-houses", tags=["Predykcja"])
+async def similar_houses(features: HouseFeatures):
+    """Znajduje podobne domy z danych treningowych."""
+    raw_data = load_training_data()
+
+    area = features.gr_liv_area
+    qual = features.overall_qual
+    year = features.year_built
+
+    filtered = raw_data[
+        (raw_data["Gr Liv Area"].between(area * 0.7, area * 1.3))
+        & (raw_data["Overall Qual"].between(qual - 1, qual + 1))
+    ].copy()
+
+    if len(filtered) < 3:
+        filtered = raw_data[
+            (raw_data["Gr Liv Area"].between(area * 0.5, area * 1.5))
+        ].copy()
+
+    filtered["distance"] = (
+        abs(filtered["Gr Liv Area"] - area) / area
+        + abs(filtered["Overall Qual"] - qual) / 10
+        + abs(filtered["Year Built"] - year) / 100
+    )
+    closest = filtered.nsmallest(5, "distance")
+
+    results = []
+    for _, row in closest.iterrows():
+        results.append({
+            "price": int(row["SalePrice"]),
+            "area": int(row["Gr Liv Area"]),
+            "quality": int(row["Overall Qual"]),
+            "year_built": int(row["Year Built"]),
+            "neighborhood": str(row.get("Neighborhood", "N/A")),
+        })
+
+    return {"similar_houses": results}
+
+
+@app.get("/api/data-stats", tags=["Dane"])
+async def data_stats():
+    """Zwraca statystyki zbioru danych treningowych."""
+    raw_data = load_training_data()
+    prices = raw_data["SalePrice"].dropna()
+
+    hist_values, bin_edges = np.histogram(prices, bins=50)
+
+    return {
+        "count": int(len(raw_data)),
+        "features_count": int(raw_data.shape[1]),
+        "mean_price": float(round(prices.mean(), 0)),
+        "median_price": float(round(prices.median(), 0)),
+        "min_price": float(round(prices.min(), 0)),
+        "max_price": float(round(prices.max(), 0)),
+        "histogram": {
+            "values": [int(v) for v in hist_values],
+            "bin_edges": [float(round(b, 0)) for b in bin_edges],
+        },
+    }
+
+
+@app.get("/api/model-info", tags=["Model"])
+async def model_info():
+    """Zwraca metryki modelu i ważność cech."""
+    from model.predict import load_model
+    from sklearn.model_selection import train_test_split
+    from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+
+    raw_data = load_training_data()
+    features, target = prepare_data(raw_data)
+
+    x_train, x_test, y_train, y_test = train_test_split(
+        features, target, test_size=0.2, random_state=42
+    )
+
+    pipeline = load_model()
+    predictions = pipeline.predict(x_test)
+
+    rmse = float(np.sqrt(mean_squared_error(y_test, predictions)))
+    mae = float(mean_absolute_error(y_test, predictions))
+    r2 = float(r2_score(y_test, predictions))
+
+    importance = get_feature_importance(pipeline)
+    top_features = dict(list(importance.items())[:15])
+
+    return {
+        "metrics": {
+            "rmse": round(rmse, 2),
+            "mae": round(mae, 2),
+            "r2": round(r2, 4),
+        },
+        "feature_importance": top_features,
+    }
+
 
 def get_resource_path(relative_path):
     """Zwraca ścieżkę do plików, działająca w IDE i po spakowaniu do .exe"""
