@@ -19,14 +19,6 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app.config import PAGE_TITLE, PAGE_ICON, PAGE_LAYOUT, MODEL_PATH, TEST_SIZE, RANDOM_STATE
-from app.ui_components import (
-    render_input_form,
-    render_prediction_result,
-    render_feature_importance,
-    render_data_overview,
-    render_model_metrics,
-    render_sidebar_info,
-)
 from data.download import load_training_data
 from data.preprocess import prepare_data, prepare_single_input
 from model.predict import predict_price, load_model
