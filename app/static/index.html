@@ -3,62 +3,252 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wycena Nieruchomości</title>
+    <title>Wycena Nieruchomosci</title>
     <link rel="stylesheet" href="/static/style.css">
+    <script src="/static/chart.min.js"></script>
 </head>
 <body>
-    <div class="container">
-        <h1>📋 Dane nieruchomości</h1>
-
-        <form id="predictionForm">
-            <div class="columns">
-                <div class="column">
-                    <h3>📐 Wymiary i powierzchnia</h3>
-                    <label for="grLivArea">Powierzchnia mieszkalna (stopy kw.):</label>
-                    <input type="number" id="grLivArea" name="grLivArea" min="300" max="5000" value="1500" required>
-
-                    <label for="totalBsmtSf">Powierzchnia piwnicy (stopy kw.):</label>
-                    <input type="number" id="totalBsmtSf" name="totalBsmtSf" min="0" max="3000" value="800">
-
-                    <h3>🚗 Garaż</h3>
-                    <label for="garageCars">Pojemność garażu (samochody):</label>
-                    <select id="garageCars" name="garageCars">
-                        <option value="0">0</option>
-                        <option value="1">1</option>
-                        <option value="2" selected>2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                    </select>
-                </div>
-
-                <div class="column">
-                    <h3>🏠 Parametry budynku</h3>
-                    <label for="overallQual">Ogólna jakość (1-10):</label>
-                    <input type="number" id="overallQual" name="overallQual" min="1" max="10" value="6">
-
-                    <label for="yearBuilt">Rok budowy:</label>
-                    <input type="number" id="yearBuilt" name="yearBuilt" min="1870" max="2025" value="1990">
-
-                    <h3>⭐ Jakość elementów</h3>
-                    <label for="kitchenQual">Jakość kuchni:</label>
-                    <select id="kitchenQual" name="kitchenQual">
-                        <option value="Ex">Doskonała</option>
-                        <option value="Gd">Dobra</option>
-                        <option value="TA" selected>Średnia</option>
-                        <option value="Fa">Dostateczna</option>
-                        <option value="Po">Słaba</option>
-                    </select>
-                </div>
+    <div class="app-layout">
+        <aside class="sidebar">
+            <h2>Menu</h2>
+            <nav>
+                <button class="nav-btn active" data-page="wycena">Wycena</button>
+                <button class="nav-btn" data-page="dane">Dane</button>
+                <button class="nav-btn" data-page="model">Model</button>
+            </nav>
+            <div class="sidebar-info">
+                <h4>O aplikacji</h4>
+                <p>Inteligentna wycena domow jednorodzinnych na podstawie modelu regresji liniowej.</p>
+                <p><strong>Dane:</strong> Kaggle House Prices</p>
+                <p><strong>Model:</strong> Linear Regression</p>
+                <p><strong>Autorzy:</strong> s27404, s28825, s27600</p>
             </div>
+            <p class="sidebar-footer">SUML 2024/2025 — Projekt zaliczeniowy</p>
+        </aside>
 
-            <button type="submit" class="submit-btn">Oblicz Wycenę</button>
-        </form>
+        <main class="content">
+            <!-- STRONA: Wycena -->
+            <section id="page-wycena" class="page active">
+                <h1>Dane nieruchomosci</h1>
+                <form id="predictionForm">
+                    <div class="columns">
+                        <div class="column">
+                            <h3>Wymiary i powierzchnia</h3>
+                            <label for="grLivArea">Powierzchnia mieszkalna (stopy kw.):</label>
+                            <input type="number" id="grLivArea" min="300" max="5000" value="1500" required>
 
-        <div id="resultSection" class="result-box hidden">
-            <h2>💰 Wynik wyceny</h2>
-            <p id="priceUSD" class="price-usd"></p>
-            <p id="pricePLN" class="price-pln"></p>
-        </div>
+                            <label for="totalBsmtSf">Powierzchnia piwnicy (stopy kw.):</label>
+                            <input type="number" id="totalBsmtSf" min="0" max="3000" value="800">
+
+                            <h3>Garaz</h3>
+                            <label for="garageCars">Pojemnosc garazu (samochody):</label>
+                            <select id="garageCars">
+                                <option value="0">0</option>
+                                <option value="1">1</option>
+                                <option value="2" selected>2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                            </select>
+                        </div>
+
+                        <div class="column">
+                            <h3>Parametry budynku</h3>
+                            <label for="overallQual">Ogolna jakosc (1-10):</label>
+                            <input type="number" id="overallQual" min="1" max="10" value="6">
+
+                            <label for="yearBuilt">Rok budowy:</label>
+                            <input type="number" id="yearBuilt" min="1870" max="2025" value="1990">
+
+                            <h3>Jakosc elementow</h3>
+                            <label for="kitchenQual">Jakosc kuchni:</label>
+                            <select id="kitchenQual">
+                                <option value="Ex">Doskonala</option>
+                                <option value="Gd">Dobra</option>
+                                <option value="TA" selected>Srednia</option>
+                                <option value="Fa">Dostateczna</option>
+                                <option value="Po">Slaba</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Opcje zaawansowane -->
+                    <details class="advanced-section">
+                        <summary>Opcje zaawansowane</summary>
+                        <div class="columns">
+                            <div class="column">
+                                <label for="firstFlrSf">Powierzchnia parteru (stopy kw.):</label>
+                                <input type="number" id="firstFlrSf" min="300" max="4000" value="1000">
+
+                                <label for="secondFlrSf">Powierzchnia pietra (stopy kw.):</label>
+                                <input type="number" id="secondFlrSf" min="0" max="2500" value="0">
+
+                                <label for="lotArea">Powierzchnia dzialki (stopy kw.):</label>
+                                <input type="number" id="lotArea" min="1000" max="50000" value="8000">
+
+                                <label for="garageArea">Powierzchnia garazu (stopy kw.):</label>
+                                <input type="number" id="garageArea" min="0" max="1500" value="400">
+
+                                <label for="yearRemod">Rok remontu:</label>
+                                <input type="number" id="yearRemod" min="1870" max="2025" value="2000">
+                            </div>
+                            <div class="column">
+                                <label for="fullBath">Lazienki pelne:</label>
+                                <select id="fullBath">
+                                    <option value="0">0</option>
+                                    <option value="1">1</option>
+                                    <option value="2" selected>2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                </select>
+
+                                <label for="halfBath">Lazienki polowkowe:</label>
+                                <select id="halfBath">
+                                    <option value="0" selected>0</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                </select>
+
+                                <label for="bedrooms">Sypialnie:</label>
+                                <select id="bedrooms">
+                                    <option value="0">0</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3" selected>3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                </select>
+
+                                <label for="totalRooms">Laczna liczba pokoi:</label>
+                                <input type="number" id="totalRooms" min="2" max="15" value="7">
+
+                                <label for="fireplaces">Kominki:</label>
+                                <select id="fireplaces">
+                                    <option value="0">0</option>
+                                    <option value="1" selected>1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                </select>
+
+                                <label for="exterQual">Jakosc materialow zewnetrznych:</label>
+                                <select id="exterQual">
+                                    <option value="Ex">Doskonala</option>
+                                    <option value="Gd">Dobra</option>
+                                    <option value="TA" selected>Srednia</option>
+                                    <option value="Fa">Dostateczna</option>
+                                    <option value="Po">Slaba</option>
+                                </select>
+                            </div>
+                        </div>
+                    </details>
+
+                    <button type="submit" class="submit-btn">Oblicz Wycene</button>
+                </form>
+
+                <div id="resultSection" class="result-box hidden">
+                    <h2>Wynik wyceny</h2>
+                    <p id="priceUSD" class="price-usd"></p>
+                    <p id="pricePLN" class="price-pln"></p>
+                    <p id="priceRange" class="price-range"></p>
+                    <div class="percentile-bar">
+                        <div class="percentile-label">Pozycja na rynku: <span id="percentileText"></span></div>
+                        <div class="percentile-track">
+                            <div class="percentile-fill" id="percentileFill"></div>
+                            <div class="percentile-marker" id="percentileMarker"></div>
+                        </div>
+                        <div class="percentile-labels">
+                            <span>Tansze</span>
+                            <span>Drozsze</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="similarSection" class="similar-box hidden">
+                    <h3>Podobne nieruchomosci ze zbioru danych</h3>
+                    <table class="similar-table">
+                        <thead>
+                            <tr>
+                                <th>Cena</th>
+                                <th>Powierzchnia</th>
+                                <th>Jakosc</th>
+                                <th>Rok budowy</th>
+                                <th>Dzielnica</th>
+                            </tr>
+                        </thead>
+                        <tbody id="similarTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- STRONA: Dane -->
+            <section id="page-dane" class="page">
+                <h1>Przeglad danych</h1>
+                <div class="metrics-row" id="dataMetrics">
+                    <div class="metric-card">
+                        <span class="metric-label">Liczba domow</span>
+                        <span class="metric-value" id="dataCount">-</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label">Liczba cech</span>
+                        <span class="metric-value" id="dataFeatures">-</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label">Srednia cena</span>
+                        <span class="metric-value" id="dataMean">-</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label">Mediana ceny</span>
+                        <span class="metric-value" id="dataMedian">-</span>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <h3>Rozklad cen nieruchomosci</h3>
+                    <canvas id="histogramChart"></canvas>
+                </div>
+            </section>
+
+            <!-- STRONA: Model -->
+            <section id="page-model" class="page">
+                <h1>Metryki modelu</h1>
+                <div class="metrics-row" id="modelMetrics">
+                    <div class="metric-card">
+                        <span class="metric-label">RMSE</span>
+                        <span class="metric-value" id="metricRMSE">-</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label">MAE</span>
+                        <span class="metric-value" id="metricMAE">-</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label">R²</span>
+                        <span class="metric-value" id="metricR2">-</span>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <h3>Waznosc cech w modelu (Top 15)</h3>
+                    <canvas id="importanceChart"></canvas>
+                </div>
+                <div class="model-description">
+                    <h3>Opis modelu</h3>
+                    <p><strong>Typ modelu:</strong> Regresja Liniowa (Linear Regression)</p>
+                    <p><strong>Preprocessing:</strong></p>
+                    <ul>
+                        <li>Imputacja brakow: mediana (numeryczne), stala wartosc (kategoryczne)</li>
+                        <li>Standaryzacja cech numerycznych (StandardScaler)</li>
+                        <li>Kodowanie one-hot dla cech kategorycznych</li>
+                        <li>Inzynieria cech: TotalSF, TotalBathrooms, HouseAge, IsRemodeled</li>
+                    </ul>
+                    <p><strong>Dane:</strong> Kaggle House Prices — Advanced Regression Techniques</p>
+                    <ul>
+                        <li>~2200 nieruchomosci z Ames, Iowa (USA)</li>
+                        <li>80+ cech opisujacych kazdy aspekt nieruchomosci</li>
+                        <li>Zmienna docelowa: cena sprzedazy (SalePrice)</li>
+                    </ul>
+                    <p><strong>Podzial danych:</strong> 80% treningowy / 20% testowy</p>
+                </div>
+            </section>
+        </main>
     </div>
 
     <script src="/static/script.js"></script>
