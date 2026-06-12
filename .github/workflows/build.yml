@@ -3,7 +3,7 @@ name: Budowanie aplikacji (PyInstaller)
 # Uruchom automatycznie przy pushu na główne gałęzie lub przy ręcznym wywołaniu
 on:
   push:
-    branches: [ "main", "FrontEndForApi" ]
+    branches: [ "master" ]
   workflow_dispatch:
 
 jobs:
