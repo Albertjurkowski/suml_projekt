@@ -1,47 +1,47 @@
-# 🏠 Inteligentna Wycena Domów Jednorodzinnych
+# Inteligentna Wycena Domów Jednorodzinnych
 
-Aplikacja webowa do przewidywania cen nieruchomości na podstawie modelu regresji liniowej, wytrenowanego na danych z Ames, Iowa (USA).
+Aplikacja desktopowa do przewidywania cen nieruchomości na podstawie modelu regresji liniowej, wytrenowanego na danych z Ames, Iowa (USA).
 
-## 📋 Spis treści
+## Spis treści
 
 - [Opis projektu](#opis-projektu)
 - [Funkcjonalności](#funkcjonalności)
 - [Struktura projektu](#struktura-projektu)
 - [Wymagania](#wymagania)
 - [Instalacja i uruchomienie](#instalacja-i-uruchomienie)
+- [Plik .exe (Windows)](#plik-exe-windows)
+- [API REST](#api-rest)
 - [Dane](#dane)
 - [Model ML](#model-ml)
+- [Jakość kodu](#jakość-kodu)
 - [Autorzy](#autorzy)
 
 ## Opis projektu
 
 Kupno albo sprzedaż domu to ważna decyzja finansowa. Pomyłka w wycenie może dużo kosztować, a profesjonalny rzeczoznawca jest drogi. Nasza aplikacja umożliwia **szybkie i bezpłatne sprawdzenie**, ile powinna kosztować nieruchomość.
 
-Użytkownik wpisuje w formularz kilka podstawowych danych, takich jak:
-- metraż (powierzchnia mieszkalna, piwnicy, garażu)
-- liczba pokoi i łazienek
-- rok budowy i remontu
-- jakość materiałów i wykończenia
-
-Aplikacja automatycznie zwraca **przewidywaną cenę** nieruchomości na podstawie wytrenowanego modelu regresji liniowej.
-
-> **Uwaga:** Dane pochodzą z USA (Ames, Iowa), ale po dostarczeniu nowych danych można przetrenować model i dostosować go do nowych rynków.
+Użytkownik wpisuje w formularz dane o nieruchomości (metraż, jakość, rok budowy itd.), a aplikacja zwraca **przewidywaną cenę** wraz z:
+- zakresem szacunkowym (+/-15%)
+- pozycją cenową na tle rynku (percentyl)
+- listą 5 podobnych nieruchomości ze zbioru danych
 
 ## Funkcjonalności
 
-- 🔮 **Wycena nieruchomości** — formularz z parametrami budynku → przewidywana cena
-- 📊 **Przegląd danych** — statystyki, histogramy i próbki zbioru treningowego
-- 🤖 **Informacje o modelu** — metryki (RMSE, MAE, R²), ważność cech, opis algorytmu
-- 🔄 **Automatyczne trenowanie** — model trenuje się przy pierwszym uruchomieniu
-- 🌐 **API REST** — endpoint FastAPI do integracji z innymi systemami
-- 🐳 **Docker** — konteneryzacja dla łatwego wdrożenia
+- **Wycena nieruchomości** — formularz z parametrami budynku + opcje zaawansowane
+- **Przegląd danych** — statystyki zbioru (liczba domów, średnia/mediana ceny) + histogram cen
+- **Informacje o modelu** — metryki (RMSE, MAE, R²), wykres ważności cech, opis algorytmu
+- **Porównanie z rynkiem** — percentyl cenowy i tabela podobnych domów
+- **Automatyczne trenowanie** — model trenuje się przy pierwszym uruchomieniu
+- **API REST** — endpointy FastAPI do integracji z innymi systemami
+- **Plik .exe** — aplikacja one-click dla Windows (PyInstaller)
+- **Docker** — konteneryzacja dla łatwego wdrożenia
 
 ## Struktura projektu
 
 Projekt jest zorganizowany z rozdzieleniem logiki na trzy warstwy: **data | model | app**.
 
 ```
-house-price-predictor/
+suml_projekt/
 ├── README.md
 ├── requirements.txt
 ├── Dockerfile
@@ -51,28 +51,34 @@ house-price-predictor/
 ├── .dockerignore
 ├── run.sh
 │
-├── data/
+├── data/                        # Warstwa danych
 │   ├── __init__.py
-│   ├── download.py
-│   ├── preprocess.py
+│   ├── download.py              # Ładowanie danych
+│   ├── preprocess.py            # Preprocessing, inżynieria cech
 │   └── raw/
-│       └── train.csv
+│       └── train.csv            # Zbiór treningowy (Kaggle)
 │
-├── model/
+├── model/                       # Warstwa modelu ML
 │   ├── __init__.py
-│   ├── train.py
-│   ├── predict.py
-│   └── saved/
+│   ├── train.py                 # Trenowanie i ewaluacja
+│   ├── predict.py               # Predykcja cen
+│   └── saved/                   # Zapisany model (model.pkl)
 │
-├── app/
+├── app/                         # Warstwa aplikacji
 │   ├── __init__.py
-│   ├── main.py                # Streamlit UI
-│   ├── api.py                 # FastAPI REST
-│   ├── ui_components.py
-│   └── config.py
+│   ├── api.py                   # FastAPI — serwer + endpointy
+│   ├── config.py                # Konfiguracja (ścieżki, cechy, stałe)
+│   ├── main.py                  # Streamlit UI (legacy)
+│   ├── ui_components.py         # Komponenty Streamlit (legacy)
+│   └── static/                  # Frontend HTML/CSS/JS
+│       ├── index.html           # Główna strona z nawigacją
+│       ├── script.js            # Logika frontendu + wykresy
+│       ├── style.css            # Style (dark theme)
+│       └── chart.min.js         # Chart.js (wykresy offline)
 │
-└── tests/
+└── tests/                       # Testy jednostkowe
     ├── __init__.py
+    ├── test_api.py
     ├── test_preprocess.py
     └── test_model.py
 ```
@@ -80,137 +86,128 @@ house-price-predictor/
 ## Wymagania
 
 - **Python 3.10+**
-- Zależności wymienione w pliku `requirements.txt`:
-  - `streamlit` — interfejs webowy
-  - `fastapi`, `uvicorn` — API REST
+- Zależności z pliku `requirements.txt`:
+  - `fastapi`, `uvicorn` — serwer HTTP + API REST
   - `pandas`, `numpy` — przetwarzanie danych
   - `scikit-learn` — model ML (regresja liniowa)
-  - `matplotlib`, `seaborn` — wizualizacje
+  - `matplotlib`, `seaborn` — wizualizacje (Streamlit legacy)
   - `joblib` — serializacja modelu
 - **Docker** (opcjonalnie) — do uruchomienia w kontenerze
 
 ## Instalacja i uruchomienie
 
-### Metoda 1: Automatyczna (zalecana)
+### Metoda 1: Standardowa (zalecana)
 
 ```bash
 # Sklonuj repozytorium
-git clone <URL_REPOZYTORIUM>
-cd house-price-predictor
-
-# Uruchom skrypt (automatycznie tworzy venv i instaluje zależności)
-chmod +x run.sh
-./run.sh
-```
-
-### Metoda 2: Ręczna
-
-```bash
-# Sklonuj repozytorium
-git clone <URL_REPOZYTORIUM>
-cd house-price-predictor
+git clone https://github.com/Albertjurkowski/suml_projekt.git
+cd suml_projekt
 
 # Stwórz środowisko wirtualne
 python3 -m venv venv
-source venv/bin/activate
+source venv/bin/activate        # Linux/macOS
+# venv\Scripts\activate         # Windows
 
 # Zainstaluj zależności
 pip install -r requirements.txt
 
 # Uruchom aplikację
-streamlit run app/main.py
+python app/api.py
 ```
 
-### Metoda 3: Bez środowiska wirtualnego
+Aplikacja uruchomi się pod adresem: **http://localhost:8000**
+Przeglądarka otworzy się automatycznie.
+
+> **Uwaga:** Przy pierwszym uruchomieniu model zostanie automatycznie wytrenowany (~5s).
+
+### Metoda 2: Docker
 
 ```bash
-pip install -r requirements.txt
-streamlit run app/main.py
-```
-
-Aplikacja Streamlit uruchomi się pod adresem: **http://localhost:8501**
-
-> **Uwaga:** Przy pierwszym uruchomieniu model zostanie automatycznie wytrenowany.
-
-### Metoda 4: Docker (zalecana do wdrożeń)
-
-```bash
-# Zbuduj i uruchom kontener
 docker compose up --build
 ```
 
-Kontener uruchomi oba serwisy:
-- **Streamlit UI:** http://localhost:8501
-- **FastAPI API:** http://localhost:8000
+Aplikacja dostępna pod: **http://localhost:8000**
 
-### Uruchomienie samego API (FastAPI)
+## Plik .exe (Windows)
+
+Aby zbudować plik wykonywalny .exe (nie wymaga Pythona u użytkownika):
 
 ```bash
-pip install -r requirements.txt
-uvicorn app.api:app --reload --port 8000
+pip install pyinstaller
+pyinstaller --name "WycenaNieruchomosci" --windowed --add-data "app/static;static" --add-data "data;data" --add-data "model;model" app/api.py
 ```
 
-Dokumentacja API (Swagger): **http://localhost:8000/docs**
+Plik .exe znajdziesz w folderze `dist/WycenaNieruchomosci/`.
+Uruchomienie: dwuklik na `WycenaNieruchomosci.exe` — aplikacja wystartuje serwer i otworzy przeglądarkę.
 
 ## API REST
 
-### `POST /predict`
+Dokumentacja interaktywna (Swagger UI): **http://localhost:8000/docs**
 
-Przykład żądania:
+### `POST /predict` — Wycena nieruchomości
+
 ```bash
 curl -X POST http://localhost:8000/predict \
   -H "Content-Type: application/json" \
   -d '{
     "gr_liv_area": 1500,
     "total_bsmt_sf": 800,
-    "first_flr_sf": 1000,
     "overall_qual": 7,
     "year_built": 2000,
-    "full_bath": 2,
-    "bedrooms": 3,
-    "garage_cars": 2
+    "garage_cars": 2,
+    "kitchen_qual": "Gd"
   }'
 ```
 
-Przykład odpowiedzi:
+Odpowiedź:
 ```json
 {
   "predicted_price_usd": 185000.50,
   "predicted_price_pln": 740002.00,
   "price_range_low": 157250.43,
-  "price_range_high": 212750.58
+  "price_range_high": 212750.58,
+  "percentile": 52.3
 }
 ```
 
-### `GET /health`
+### `POST /api/similar-houses` — Podobne nieruchomości
 
-Sprawdzenie statusu serwisu i modelu.
+Zwraca 5 najbliższych domów ze zbioru treningowego o podobnych parametrach.
+
+### `GET /api/data-stats` — Statystyki danych
+
+Zwraca liczbę rekordów, średnią/medianę cen oraz histogram do wizualizacji.
+
+### `GET /api/model-info` — Metryki modelu
+
+Zwraca RMSE, MAE, R² oraz top 15 najważniejszych cech.
+
+### `GET /health` — Status serwisu
 
 ## Dane
 
 ### Źródło
-Zestaw danych pochodzi z konkursu Kaggle:  
+Zestaw danych pochodzi z konkursu Kaggle:
 [House Prices: Advanced Regression Techniques](https://www.kaggle.com/competitions/house-prices-advanced-regression-techniques)
 
 ### Charakterystyka
 - **~2200 nieruchomości** z miasta Ames, Iowa (USA)
 - **82 cechy** opisujące każdy aspekt nieruchomości
 - **Zmienna docelowa:** cena sprzedaży (`SalePrice`)
-- **Typ danych:** tabularne (CSV)
-
-### Przetwarzanie danych
-1. **Imputacja braków** — mediana dla cech numerycznych, stała wartość dla kategorycznych
-2. **Inżynieria cech** — nowe zmienne: TotalSF, TotalBathrooms, HouseAge, IsRemodeled
-3. **Kodowanie jakości** — wartości Ex/Gd/TA/Fa/Po → 5/4/3/2/1
-4. **Standaryzacja** — normalizacja cech numerycznych (StandardScaler)
-5. **One-hot encoding** — kodowanie cech kategorycznych nominalnych
 
 ### Format danych wejściowych
 Użytkownik wprowadza dane przez formularz w aplikacji:
-- Powierzchnie (stopy kwadratowe): metraż, piwnica, garaż
+- Powierzchnie (stopy kw.): metraż mieszkalny, piwnica, garaż, działka
 - Liczby całkowite: pokoje, łazienki, kominki, samochody w garażu
 - Rok: budowa, remont
-- Skala jakości: 1-10 (ogólna), Ex/Gd/TA/Fa/Po (materiały)
+- Skala jakości: 1-10 (ogólna), Ex/Gd/TA/Fa/Po (materiały, kuchnia)
+
+### Przetwarzanie danych
+1. **Imputacja braków** — mediana dla cech numerycznych, stała wartość dla kategorycznych
+2. **Inżynieria cech** — TotalSF, TotalBathrooms, HouseAge, IsRemodeled
+3. **Kodowanie jakości** — Ex/Gd/TA/Fa/Po → 5/4/3/2/1
+4. **Standaryzacja** — normalizacja cech numerycznych (StandardScaler)
+5. **One-hot encoding** — kodowanie cech kategorycznych nominalnych
 
 ## Model ML
 
@@ -222,20 +219,21 @@ Użytkownik wprowadza dane przez formularz w aplikacji:
 Dane surowe → Inżynieria cech → Kodowanie jakości → [Imputacja + Standaryzacja | One-Hot] → Regresja Liniowa → Cena
 ```
 
-### Metryki
-Model jest ewaluowany na zbiorze testowym (20% danych):
-- **RMSE** (Root Mean Squared Error) — błąd średniokwadratowy
-- **MAE** (Mean Absolute Error) — średni błąd bezwzględny
-- **R²** (Coefficient of Determination) — współczynnik determinacji
+### Metryki (zbiór testowy, 20% danych)
+| Metryka | Wartość |
+|---------|---------|
+| RMSE    | ~$31,694 |
+| MAE     | ~$19,615 |
+| R²      | ~0.8103  |
 
 ### Trenowanie
 - Podział danych: 80% treningowy / 20% testowy
 - Model trenuje się automatycznie przy pierwszym uruchomieniu
-- Wytrenowany model jest zapisywany do `model/saved/model.pkl`
+- Wytrenowany model zapisywany do `model/saved/model.pkl`
 
 ## Jakość kodu
 
-Projekt spełnia wymogi PEP8 i uzyskuje **co najmniej 8/10 pkt** w pylint.
+Projekt spełnia wymogi PEP8 i uzyskuje co najmniej 8/10 pkt w pylint.
 
 ```bash
 # Uruchomienie pylint
@@ -247,7 +245,7 @@ python -m pytest tests/ -v
 
 ## Autorzy
 
-Projekt realizowany w ramach przedmiotu **Środowiska Uruchomieniowe Machine Learning (SUML)**  
+Projekt realizowany w ramach przedmiotu **Środowiska Uruchomieniowe Machine Learning (SUML)**
 Polsko-Japońska Akademia Technik Komputerowych, 2024/2025
 
 | Numer indeksu |
@@ -255,7 +253,3 @@ Polsko-Japońska Akademia Technik Komputerowych, 2024/2025
 | s27404        |
 | s28825        |
 | s27600        |
-
-## Licencja
-
-Projekt edukacyjny — Polsko-Japońska Akademia Technik Komputerowych.
