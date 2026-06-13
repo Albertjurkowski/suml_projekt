@@ -7,15 +7,16 @@ Uruchomienie: uvicorn app.api:app --reload --port 8000
 
 import os
 import sys
-import uvicorn
-import webbrowser
 import threading
-import numpy as np
+import webbrowser
 from contextlib import asynccontextmanager
+
+import numpy as np
+import uvicorn
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
 from fastapi.responses import FileResponse
+from pydantic import BaseModel, Field
 from starlette.staticfiles import StaticFiles
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -49,6 +50,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 class HouseFeatures(BaseModel):
     """Schemat danych wejściowych — cechy nieruchomości."""
@@ -124,7 +126,6 @@ def _features_to_dict(features: HouseFeatures) -> dict:
     }
 
 
-
 @app.get("/health", response_model=HealthResponse, tags=["Status"])
 async def health_check():
     """Sprawdza status serwisu i dostępność modelu."""
@@ -161,6 +162,7 @@ async def predict(features: HouseFeatures):
         )
     except Exception as error:
         raise HTTPException(status_code=500, detail=str(error)) from error
+
 
 @app.post("/api/similar-houses", tags=["Predykcja"])
 async def similar_houses(features: HouseFeatures):
@@ -233,7 +235,7 @@ async def model_info():
     raw_data = load_training_data()
     features, target = prepare_data(raw_data)
 
-    x_train, x_test, y_train, y_test = train_test_split(
+    _, x_test, _, y_test = train_test_split(
         features, target, test_size=0.2, random_state=42
     )
 
@@ -258,29 +260,30 @@ async def model_info():
 
 
 def get_resource_path(relative_path):
-    """Zwraca ścieżkę do plików, działająca w IDE i po spakowaniu do .exe"""
+    """Zwraca ścieżkę do zasobów działającą zarówno w IDE, jak i po spakowaniu do .exe."""
     if hasattr(sys, '_MEIPASS'):
+        # pylint: disable=protected-access
         return os.path.join(sys._MEIPASS, relative_path)
     return os.path.join(os.path.dirname(__file__), relative_path)
 
+
 static_path = get_resource_path("static")
-
-
 
 app.mount("/static", StaticFiles(directory=static_path), name="static")
 
+
 @app.get("/")
 def read_root():
+    """Serwuje główną stronę aplikacji."""
     index_file = os.path.join(static_path, "index.html")
-    print("Serwowanie pliku: {}".format(index_file))
+    print(f"Serwowanie pliku: {index_file}")
     return FileResponse(index_file)
 
 
 if __name__ == "__main__":
     def open_browser():
+        """Otwiera przeglądarkę po uruchomieniu serwera."""
         webbrowser.open("http://127.0.0.1:8000")
 
-
     threading.Timer(1.5, open_browser).start()
-
     uvicorn.run(app, host="127.0.0.1", port=8000, log_config=None)
