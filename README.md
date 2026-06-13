@@ -120,7 +120,7 @@ python -m pytest tests/ -v
 
 ---
 
-## Autorzy (PJATK 2024/2025)
+## Autorzy (PJATK 2025/2026)
 
 | Numer indeksu | Wkład |
 |---------------|-------|
