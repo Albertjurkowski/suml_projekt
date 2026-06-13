@@ -1,6 +1,5 @@
 name: Budowanie aplikacji (PyInstaller)
 
-# Uruchom automatycznie przy pushu na główne gałęzie, opublikowaniu wydania (release) lub przy ręcznym wywołaniu
 on:
   push:
     branches: [ "master" ]
@@ -14,7 +13,6 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     strategy:
-      # Matrix sprawia, że poniższe kroki wykonają się na 3 maszynach równolegle!
       matrix:
         os: [windows-latest, macos-latest, ubuntu-latest]
         include:
@@ -32,33 +30,28 @@ jobs:
             artifact_name: "Wycena-Linux"
 
     steps:
-    # 1. Pobranie kodu Twojego projektu na maszynę w chmurze
     - name: Klonowanie repozytorium
       uses: actions/checkout@v4
 
-    # 2. Instalacja odpowiedniej wersji Pythona
     - name: Konfiguracja Pythona 3.12
       uses: actions/setup-python@v5
       with:
         python-version: '3.12'
-        cache: 'pip' # Przyspiesza kolejne budowania
+        cache: 'pip' 
 
-    # 3. Instalacja bibliotek z Twojego pliku requirements.txt + pyinstaller
     - name: Instalacja zależności
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install pyinstaller
 
-    # 4. Magiczna komenda PyInstallera dopasowująca się do systemu operacyjnego
     - name: Kompilacja PyInstaller
       run: |
         pyinstaller --name "WycenaNieruchomosci" ${{ matrix.flags }} --add-data "app/static${{ matrix.sep }}static" --add-data "data${{ matrix.sep }}data" --add-data "model${{ matrix.sep }}model" app/api.py
 
-    # 5. Spakowanie wygenerowanego folderu i wrzucenie go na GitHuba jako plik do pobrania
     - name: Wrzucenie gotowej paczki (Artifact)
       uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.artifact_name }}
         path: dist/WycenaNieruchomosci/
-        retention-days: 7 # Pliki będą dostępne do pobrania przez 7 dni
+        retention-days: 7 
