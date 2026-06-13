@@ -124,6 +124,6 @@ python -m pytest tests/ -v
 
 | Numer indeksu | Wkład |
 |---------------|-------|
-| s27404        |       |
-| s28825        |       |
+| s27404        | Warstwa danych i modelu ML (preprocessing danych, inżynieria cech, pipeline scikit-learn, trenowanie i ewaluacja modelu regresji liniowej, obliczanie ważności cech) |
+| s28825        | Migracja interfejsu ze Streamlit na FastAPI + czysty HTML/CSS/JS, konfiguracja CI/CD (GitHub Actions — automatyczne budowanie paczek .exe dla Windows, macOS i Linux za pomocą PyInstaller) |
 | s27600        | Rozbudowa frontendu (nawigacja zakładkowa, dark theme, opcje zaawansowane w formularzu), interaktywne wykresy Chart.js (histogram cen, ważność cech), nowe endpointy API (statystyki danych, metryki modelu, podobne nieruchomości, percentyl cenowy) |
