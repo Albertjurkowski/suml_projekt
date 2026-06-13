@@ -40,9 +40,10 @@ echo "✅ Zależności zainstalowane"
 
 # --- Uruchomienie aplikacji ---
 echo ""
-echo "🚀 Uruchamianie aplikacji Streamlit..."
-echo "   Otwórz przeglądarkę: http://localhost:8501"
+echo "🚀 Uruchamianie aplikacji..."
+echo "   Otwórz przeglądarkę: http://localhost:8000"
 echo "   Aby zatrzymać: Ctrl+C"
 echo ""
 
-streamlit run app/main.py
+python app/api.py
+

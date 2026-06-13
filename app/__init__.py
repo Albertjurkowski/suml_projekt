@@ -1,6 +1,6 @@
 """
-Moduł aplikacji — interfejs webowy Streamlit.
+Moduł aplikacji — interfejs webowy (FastAPI + HTML/JS).
 
-Zawiera komponenty UI, konfigurację aplikacji
-oraz główny punkt wejścia serwera Streamlit.
+Zawiera serwer API REST oraz pliki statyczne frontendu.
 """
+

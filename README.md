@@ -46,7 +46,6 @@ Użytkownik wpisuje w formularz dane o nieruchomości (metraż, jakość, rok bu
 - **Automatyczne trenowanie** — model trenuje się przy pierwszym uruchomieniu
 - **API REST** — endpointy FastAPI do integracji z innymi systemami
 - **CI/CD (GitHub Actions)** — automatyczne budowanie gotowych paczek dla wielu systemów operacyjnych
-- **Docker** — konteneryzacja dla łatwego wdrożenia
 
 ## Struktura projektu
 
@@ -60,11 +59,8 @@ suml_projekt/
 │
 ├── README.md
 ├── requirements.txt
-├── Dockerfile
-├── docker-compose.yml
 ├── .pylintrc
 ├── .gitignore
-├── .dockerignore
 ├── run.sh
 │
 ├── data/                        # Warstwa danych
@@ -84,8 +80,6 @@ suml_projekt/
 │   ├── __init__.py
 │   ├── api.py                   # FastAPI — serwer + endpointy
 │   ├── config.py                # Konfiguracja (ścieżki, cechy, stałe)
-│   ├── main.py                  # Streamlit UI (legacy)
-│   ├── ui_components.py         # Komponenty Streamlit (legacy)
 │   └── static/                  # Frontend HTML/CSS/JS
 │       ├── index.html           # Główna strona z nawigacją
 │       ├── script.js            # Logika frontendu + wykresy Chart.js
@@ -106,17 +100,13 @@ suml_projekt/
   - `fastapi`, `uvicorn` — serwer HTTP + API REST
   - `pandas`, `numpy` — przetwarzanie danych
   - `scikit-learn` — model ML (regresja liniowa)
-  - `matplotlib`, `seaborn` — wizualizacje (Streamlit legacy)
   - `joblib` — serializacja modelu
-- **Docker** (opcjonalnie) — do uruchomienia w kontenerze
 
 ## Instalacja i uruchomienie
 
-### Metoda 1: Standardowa (zalecana)
-
 ```bash
 # Sklonuj repozytorium
-git clone [https://github.com/Albertjurkowski/suml_projekt.git](https://github.com/Albertjurkowski/suml_projekt.git)
+git clone https://github.com/Albertjurkowski/suml_projekt.git
 cd suml_projekt
 
 # Stwórz środowisko wirtualne
@@ -136,13 +126,6 @@ Przeglądarka otworzy się automatycznie.
 
 > **Uwaga:** Przy pierwszym uruchomieniu model zostanie automatycznie wytrenowany (~5s).
 
-### Metoda 2: Docker
-
-```bash
-docker compose up --build
-```
-
-Aplikacja dostępna pod: **http://localhost:8000**
 
 ## Plik .exe (Windows)
 

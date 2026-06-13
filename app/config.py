@@ -69,7 +69,7 @@ QUALITY_MAPPING = {
 
 QUALITY_COLUMNS = ["Exter Qual", "Kitchen Qual", "Bsmt Qual", "Heating QC"]
 
-PAGE_TITLE = "🏠 Wycena Nieruchomości"
+PAGE_TITLE = "Wycena Nieruchomości"
 PAGE_ICON = "🏠"
 PAGE_LAYOUT = "wide"
 
