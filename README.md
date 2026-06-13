@@ -122,8 +122,8 @@ python -m pytest tests/ -v
 
 ## Autorzy (PJATK 2024/2025)
 
-| Numer indeksu |
-|---------------|
-| s27404        |
-| s28825        |
-| s27600        |
+| Numer indeksu | Wkład |
+|---------------|-------|
+| s27404        |       |
+| s28825        |       |
+| s27600        | Rozbudowa frontendu (nawigacja zakładkowa, dark theme, opcje zaawansowane w formularzu), interaktywne wykresy Chart.js (histogram cen, ważność cech), nowe endpointy API (statystyki danych, metryki modelu, podobne nieruchomości, percentyl cenowy) |
