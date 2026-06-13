@@ -6,24 +6,71 @@ Aplikacja webowa do wyceny nieruchomości na podstawie modelu regresji liniowej,
 
 ## Szybki start
 
-Najprostszym sposobem na uruchomienie aplikacji jest skorzystanie ze skryptu `run.sh`, który automatycznie utworzy środowisko wirtualne, zainstaluje zależności i uruchomi serwer:
+Aby uruchomić aplikację, wykonaj następujące kroki:
 
-```bash
-chmod +x run.sh
-./run.sh
-```
+1. **Otwórz Terminal** (na macOS możesz go znaleźć np. przez Spotlight `Cmd + Spacja` i wpisując "Terminal").
+2. **Przejdź do katalogu projektu**:
+   Wpisz w terminalu komendę `cd` (ze spacją na końcu), a następnie przeciągnij i upuść folder z projektem z Findera do okna terminala i wciśnij `Enter`. Ścieżka uzupełni się automatycznie, np.:
+   ```bash
+   cd /sciezka/do/projektu/house-price-predictor
+   ```
+3. **Nadaj uprawnienia do uruchomienia skryptu** (wymagane tylko raz na macOS/Linux):
+   ```bash
+   chmod +x run.sh
+   ```
+4. **Uruchom aplikację**:
+   ```bash
+   ./run.sh
+   ```
 
-Aplikacja będzie dostępna pod adresem: **[http://localhost:8000](http://localhost:8000)** (przeglądarka otworzy się automatycznie).
+Skrypt automatycznie utworzy środowisko wirtualne Python, zainstaluje niezbędne biblioteki oraz uruchomi serwer.
+
+Po pomyślnym uruchomieniu przeglądarka otworzy się automatycznie. Jeśli tak się nie stanie, otwórz przeglądarkę ręcznie i przejdź pod adres: **[http://localhost:8000](http://localhost:8000)**.
 
 ---
 
 ## Gotowe aplikacje (bez instalacji)
 
-Najnowsze wersje aplikacji są budowane automatycznie przez GitHub Actions i nie wymagają instalacji Pythona:
-1. Przejdź do zakładki **[Actions](../../actions)**.
-2. Wybierz najnowsze uruchomienie **Budowanie aplikacji (PyInstaller)**.
-3. W sekcji **Artifacts** na dole strony pobierz paczkę dla swojego systemu.
-4. Rozpakuj i uruchom plik wykonywalny (np. `WycenaNieruchomosci.exe` na Windowsie).
+Najnowsze wersje aplikacji są budowane automatycznie przez GitHub Actions i nie wymagają instalowania Pythona ani żadnych zależności.
+
+### 1. Pobranie paczki
+1. Na górnym pasku tego repozytorium GitHub kliknij zakładkę **[Actions](../../actions)**.
+2. Na liście po lewej stronie wybierz przepływ **Budowanie aplikacji (PyInstaller)**.
+3. Kliknij na najnowsze uruchomienie na liście (oznaczone zielonym symbolem powodzenia).
+4. Przewiń stronę na sam dół do sekcji **Artifacts** i kliknij nazwę paczki przeznaczonej dla Twojego systemu operacyjnego, aby pobrać plik `.zip`:
+   - `Wycena-Windows` (dla Windowsa)
+   - `Wycena-Mac` (dla macOS)
+   - `Wycena-Linux` (dla Linuksa)
+
+### 2. Uruchomienie na komputerze
+
+Rozpakuj pobrane archiwum `.zip` i wykonaj poniższe kroki w zależności od systemu:
+
+#### Windows
+1. Wejdź do rozpakowanego folderu.
+2. Kliknij dwukrotnie w plik **`WycenaNieruchomosci.exe`**.
+3. Otworzy się okno konsoli uruchamiające serwer, a po chwili w przeglądarce automatycznie otworzy się strona aplikacji pod adresem `http://localhost:8000`.
+
+#### macOS
+1. Otwórz **Terminal** (np. poprzez wyszukiwarkę Spotlight: `Cmd + Spacja` i wpisanie "Terminal").
+2. Wpisz komendę `cd` (ze spacją na końcu).
+3. Przeciągnij i upuść rozpakowany folder z aplikacji Finder do okna Terminala, a następnie wciśnij klawisz `Enter`.
+4. Uruchom program, wpisując komendę:
+   ```bash
+   ./WycenaNieruchomosci
+   ```
+   *Wskazówka: Jeśli macOS zablokuje uruchomienie aplikacji od niezidentyfikowanego twórcy, przejdź do Ustawienia systemowe -> Prywatność i bezpieczeństwo i kliknij przycisk "Otwórz mimo to" (Open Anyway).*
+
+#### Linux
+1. Otwórz terminal wewnątrz rozpakowanego katalogu.
+2. Nadaj plikowi uprawnienia do uruchomienia:
+   ```bash
+   chmod +x WycenaNieruchomosci
+   ```
+3. Uruchom aplikację komendą:
+   ```bash
+   ./WycenaNieruchomosci
+   ```
 
 ---
 
@@ -49,6 +96,10 @@ Najnowsze wersje aplikacji są budowane automatycznie przez GitHub Actions i nie
 ---
 
 ## Jakość kodu i testy
+
+Aplikacja spełnia wysokie standardy jakości kodu:
+- **Ocena pylint:** **9.68/10**
+- **Testy jednostkowe:** **26/26 zaliczonych**
 
 Uruchomienie analizy statycznej (linter):
 ```bash
