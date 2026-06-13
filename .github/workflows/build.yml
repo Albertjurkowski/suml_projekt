@@ -1,9 +1,11 @@
 name: Budowanie aplikacji (PyInstaller)
 
-# Uruchom automatycznie przy pushu na główne gałęzie lub przy ręcznym wywołaniu
+# Uruchom automatycznie przy pushu na główne gałęzie, opublikowaniu wydania (release) lub przy ręcznym wywołaniu
 on:
   push:
     branches: [ "master" ]
+  release:
+    types: [published]
   workflow_dispatch:
 
 jobs:
