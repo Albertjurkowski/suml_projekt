@@ -260,9 +260,7 @@ async def model_info():
 def get_resource_path(relative_path):
     """Zwraca ścieżkę do plików, działająca w IDE i po spakowaniu do .exe"""
     if hasattr(sys, '_MEIPASS'):
-        # Ścieżka podczas działania z pliku .exe
         return os.path.join(sys._MEIPASS, relative_path)
-    # Ścieżka podczas standardowego uruchamiania w PyCharmie
     return os.path.join(os.path.dirname(__file__), relative_path)
 
 static_path = get_resource_path("static")
@@ -274,7 +272,6 @@ app.mount("/static", StaticFiles(directory=static_path), name="static")
 @app.get("/")
 def read_root():
     index_file = os.path.join(static_path, "index.html")
-    # Zwracanie logu z wykorzystaniem str.format()
     print("Serwowanie pliku: {}".format(index_file))
     return FileResponse(index_file)
 
@@ -286,5 +283,4 @@ if __name__ == "__main__":
 
     threading.Timer(1.5, open_browser).start()
 
-    # Wyłączamy domyślną konfigurację logów uvicorna
     uvicorn.run(app, host="127.0.0.1", port=8000, log_config=None)

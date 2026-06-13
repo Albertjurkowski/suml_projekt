@@ -9,7 +9,6 @@ import os
 import sys
 from fastapi.testclient import TestClient
 
-# Dodaj katalog główny projektu do ścieżki importów
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app.api import app
@@ -62,7 +61,7 @@ def test_predict_endpoint_invalid_data():
     """Sprawdza czy walidacja FastAPI odrzuca niepoprawne dane (np. za wysoka jakość)."""
     payload = {
         "gr_liv_area": 1500,
-        "overall_qual": 11,  # Dozwolone 1-10
+        "overall_qual": 11,
     }
     response = client.post("/predict", json=payload)
-    assert response.status_code == 422  # Unprocessable Entity
+    assert response.status_code == 422

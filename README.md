@@ -1,251 +1,68 @@
 # Inteligentna Wycena Domów Jednorodzinnych
 
-Aplikacja desktopowa do przewidywania cen nieruchomości na podstawie modelu regresji liniowej, wytrenowanego na danych z Ames, Iowa (USA).
-
-## 📥 Gotowe wersje do pobrania (One-Click)
-
-Najnowsze wersje aplikacji są generowane automatycznie za pomocą GitHub Actions i nie wymagają instalacji Pythona na komputerze użytkownika.
-
-👉 **Instrukcja uruchomienia:**
-1. Przejdź do zakładki **[Actions](../../actions)** na górnym pasku tego repozytorium.
-2. Kliknij w najnowsze uruchomienie o nazwie **Budowanie aplikacji (PyInstaller)**.
-3. Zjedź na sam dół strony do sekcji **Artifacts**.
-4. **Pobierz paczkę dla wybranego systemu, rozpakuj ją i wciśnij `WycenaNieruchomosci.exe`** (lub odpowiedni plik startowy dla systemów macOS / Linux).
+Aplikacja webowa do wyceny nieruchomości na podstawie modelu regresji liniowej, wytrenowanego na danych z Ames, Iowa (USA). Projekt realizowany w ramach przedmiotu **Środowiska Uruchomieniowe Machine Learning (SUML)**.
 
 ---
 
-## Spis treści
+## Szybki start
 
-- [Opis projektu](#opis-projektu)
-- [Funkcjonalności](#funkcjonalności)
-- [Struktura projektu](#struktura-projektu)
-- [Wymagania](#wymagania)
-- [Instalacja i uruchomienie](#instalacja-i-uruchomienie)
-- [Plik .exe (Windows)](#plik-exe-windows)
-- [API REST](#api-rest)
-- [Dane](#dane)
-- [Model ML](#model-ml)
-- [Jakość kodu](#jakość-kodu)
-- [Autorzy](#autorzy)
+Najprostszym sposobem na uruchomienie aplikacji jest skorzystanie ze skryptu `run.sh`, który automatycznie utworzy środowisko wirtualne, zainstaluje zależności i uruchomi serwer:
 
-## Opis projektu
+```bash
+chmod +x run.sh
+./run.sh
+```
 
-Kupno albo sprzedaż domu to ważna decyzja finansowa. Pomyłka w wycenie może dużo kosztować, a profesjonalny rzeczoznawca jest drogi. Nasza aplikacja umożliwia **szybkie i bezpłatne sprawdzenie**, ile powinna kosztować nieruchomość.
+Aplikacja będzie dostępna pod adresem: **[http://localhost:8000](http://localhost:8000)** (przeglądarka otworzy się automatycznie).
 
-Użytkownik wpisuje w formularz dane o nieruchomości (metraż, jakość, rok budowy itd.), a aplikacja zwraca **przewidywaną cenę** wraz z:
-- zakresem szacunkowym (+/-15%)
-- pozycją cenową na tle rynku (percentyl)
-- listą 5 podobnych nieruchomości ze zbioru danych
+---
+
+## Gotowe aplikacje (bez instalacji)
+
+Najnowsze wersje aplikacji są budowane automatycznie przez GitHub Actions i nie wymagają instalacji Pythona:
+1. Przejdź do zakładki **[Actions](../../actions)**.
+2. Wybierz najnowsze uruchomienie **Budowanie aplikacji (PyInstaller)**.
+3. W sekcji **Artifacts** na dole strony pobierz paczkę dla swojego systemu.
+4. Rozpakuj i uruchom plik wykonywalny (np. `WycenaNieruchomosci.exe` na Windowsie).
+
+---
 
 ## Funkcjonalności
 
-- **Wycena nieruchomości** — formularz z parametrami budynku + opcje zaawansowane
-- **Przegląd danych** — statystyki zbioru (liczba domów, średnia/mediana ceny) + histogram cen
-- **Informacje o modelu** — metryki (RMSE, MAE, R²), wykres ważności cech, opis algorytmu
-- **Porównanie z rynkiem** — percentyl cenowy i tabela podobnych domów
-- **Automatyczne trenowanie** — model trenuje się przy pierwszym uruchomieniu
-- **API REST** — endpointy FastAPI do integracji z innymi systemami
-- **CI/CD (GitHub Actions)** — automatyczne budowanie gotowych paczek dla wielu systemów operacyjnych
+- **Wycena nieruchomości** – intuicyjny formularz z parametrami budynku.
+- **Porównanie z rynkiem** – wyliczanie percentyla ceny i lista 5 podobnych domów ze zbioru treningowego.
+- **Analiza danych** – statystyki zbioru danych z interaktywnym histogramem cen.
+- **Informacje o modelu** – prezentacja metryk jakości oraz wykres ważności cech.
+- **API REST** – dokumentacja Swagger UI dostępna pod adresem **[http://localhost:8000/docs](http://localhost:8000/docs)**.
 
-## Struktura projektu
+---
 
-Projekt jest zorganizowany z rozdzieleniem logiki na trzy główne warstwy: **data | model | app** oraz procesy automatyzacji CI/CD.
+## Dane i Model ML
 
-```text
-suml_projekt/
-├── .github/                     # Automatyzacja CI/CD (GitHub Actions)
-│   └── workflows/
-│       └── build.yml            # Skrypt automatycznie budujący paczki dla Windows, Mac i Linux
-│
-├── README.md
-├── requirements.txt
-├── .pylintrc
-├── .gitignore
-├── run.sh
-│
-├── data/                        # Warstwa danych
-│   ├── __init__.py
-│   ├── download.py              # Ładowanie danych
-│   ├── preprocess.py            # Preprocessing, inżynieria cech
-│   └── raw/
-│       └── train.csv            # Zbiór treningowy (Kaggle)
-│
-├── model/                       # Warstwa modelu ML
-│   ├── __init__.py
-│   ├── train.py                 # Trenowanie i ewaluacja
-│   ├── predict.py               # Predykcja cen
-│   └── saved/                   # Zapisany model (model.pkl)
-│
-├── app/                         # Warstwa aplikacji
-│   ├── __init__.py
-│   ├── api.py                   # FastAPI — serwer + endpointy
-│   ├── config.py                # Konfiguracja (ścieżki, cechy, stałe)
-│   └── static/                  # Frontend HTML/CSS/JS
-│       ├── index.html           # Główna strona z nawigacją
-│       ├── script.js            # Logika frontendu + wykresy Chart.js
-│       ├── style.css            # Style (dark theme)
-│       └── chart.min.js         # Chart.js (wykresy offline)
-│
-└── tests/                       # Testy jednostkowe
-    ├── __init__.py
-    ├── test_api.py
-    ├── test_preprocess.py
-    └── test_model.py
-```
+- **Dane:** Zbiór [Ames Housing Dataset](https://www.kaggle.com/competitions/house-prices-advanced-regression-techniques) (~2200 domów, 82 cechy).
+- **Algorytm:** Regresja Liniowa (`scikit-learn`) z preprocessingiem (imputacja braków, inżynieria cech, standaryzacja, one-hot encoding).
+- **Metryki (zbiór testowy):**
+  - **R²:** ~0.81
+  - **MAE:** ~$19,615
+  - **RMSE:** ~$31,694
 
-## Wymagania
+---
 
-- **Python 3.10+**
-- Zależności z pliku `requirements.txt`:
-  - `fastapi`, `uvicorn` — serwer HTTP + API REST
-  - `pandas`, `numpy` — przetwarzanie danych
-  - `scikit-learn` — model ML (regresja liniowa)
-  - `joblib` — serializacja modelu
+## Jakość kodu i testy
 
-## Instalacja i uruchomienie
-
+Uruchomienie analizy statycznej (linter):
 ```bash
-# Sklonuj repozytorium
-git clone https://github.com/Albertjurkowski/suml_projekt.git
-cd suml_projekt
-
-# Stwórz środowisko wirtualne
-python3 -m venv venv
-source venv/bin/activate        # Linux/macOS
-# venv\Scripts\activate         # Windows
-
-# Zainstaluj zależności
-pip install -r requirements.txt
-
-# Uruchom aplikację
-python app/api.py
-```
-
-Aplikacja uruchomi się pod adresem: **http://localhost:8000**
-Przeglądarka otworzy się automatycznie.
-
-> **Uwaga:** Przy pierwszym uruchomieniu model zostanie automatycznie wytrenowany (~5s).
-
-
-## Plik .exe (Windows)
-
-Aby samodzielnie zbudować plik wykonywalny .exe (nie wymaga Pythona u użytkownika):
-
-```bash
-pip install pyinstaller
-pyinstaller --name "WycenaNieruchomosci" --windowed --add-data "app/static;static" --add-data "data;data" --add-data "model;model" app/api.py
-```
-
-Plik .exe znajdziesz w folderze `dist/WycenaNieruchomosci/`.
-Uruchomienie: dwuklik na `WycenaNieruchomosci.exe` — aplikacja wystartuje serwer i otworzy przeglądarkę.
-
-## API REST
-
-Dokumentacja interaktywna (Swagger UI): **http://localhost:8000/docs**
-
-### `POST /predict` — Wycena nieruchomości
-
-```bash
-curl -X POST http://localhost:8000/predict \
-  -H "Content-Type: application/json" \
-  -d '{
-    "gr_liv_area": 1500,
-    "total_bsmt_sf": 800,
-    "overall_qual": 7,
-    "year_built": 2000,
-    "garage_cars": 2,
-    "kitchen_qual": "Gd"
-  }'
-```
-
-Odpowiedź:
-```json
-{
-  "predicted_price_usd": 185000.50,
-  "predicted_price_pln": 740002.00,
-  "price_range_low": 157250.43,
-  "price_range_high": 212750.58,
-  "percentile": 52.3
-}
-```
-
-### `POST /api/similar-houses` — Podobne nieruchomości
-
-Zwraca 5 najbliższych domów ze zbioru treningowego o podobnych parametrach.
-
-### `GET /api/data-stats` — Statystyki danych
-
-Zwraca liczbę rekordów, średnią/medianę cen oraz pełną strukturę histogramu do natywnej wizualizacji.
-
-### `GET /api/model-info` — Metryki modelu
-
-Zwraca RMSE, MAE, R² oraz słownik zawierający top 15 najważniejszych cech.
-
-### `GET /health` — Status serwisu
-
-## Dane
-
-### Źródło
-Zestaw danych pochodzi z konkursu Kaggle:
-[House Prices: Advanced Regression Techniques](https://www.kaggle.com/competitions/house-prices-advanced-regression-techniques)
-
-### Charakterystyka
-- **~2200 nieruchomości** z miasta Ames, Iowa (USA)
-- **82 cechy** opisujące każdy aspekt nieruchomości
-- **Zmienna docelowa:** cena sprzedaży (`SalePrice`)
-
-### Format danych wejściowych
-Użytkownik wprowadza dane przez formularz w aplikacji:
-- Powierzchnie (stopy kw.): metraż mieszkalny, piwnica, garaż, działka
-- Liczby całkowite: pokoje, łazienki, kominki, samochody w garażu
-- Rok: budowa, remont
-- Skala jakości: 1-10 (ogólna), Ex/Gd/TA/Fa/Po (materiały, kuchnia)
-
-### Przetwarzanie danych
-1. **Imputacja braków** — mediana dla cech numerycznych, stała wartość dla kategorycznych
-2. **Inżynieria cech** — TotalSF, TotalBathrooms, HouseAge, IsRemodeled
-3. **Kodowanie jakości** — Ex/Gd/TA/Fa/Po → 5/4/3/2/1
-4. **Standaryzacja** — normalizacja cech numerycznych (StandardScaler)
-5. **One-hot encoding** — kodowanie cech kategorycznych nominalnych
-
-## Model ML
-
-### Algorytm
-**Regresja Liniowa** (Linear Regression) z biblioteki scikit-learn.
-
-### Pipeline
-```text
-Dane surowe → Inżynieria cech → Kodowanie jakości → [Imputacja + Standaryzacja | One-Hot] → Regresja Liniowa → Cena
-```
-
-### Metryki (zbiór testowy, 20% danych)
-| Metryka | Wartość |
-|---------|---------|
-| RMSE    | ~$31,694 |
-| MAE     | ~$19,615 |
-| R²      | ~0.8103  |
-
-### Trenowanie
-- Podział danych: 80% treningowy / 20% testowy
-- Model trenuje się automatycznie przy pierwszym uruchomieniu
-- Wytrenowany model zapisywany do `model/saved/model.pkl`
-
-## Jakość kodu
-
-Projekt spełnia wymogi PEP8 i uzyskuje co najmniej 8/10 pkt w pylint.
-
-```bash
-# Uruchomienie pylint
 pylint data/ model/ app/ --rcfile=.pylintrc
+```
 
-# Uruchomienie testów
+Uruchomienie testów jednostkowych:
+```bash
 python -m pytest tests/ -v
 ```
 
-## Autorzy
+---
 
-Projekt realizowany w ramach przedmiotu **Środowiska Uruchomieniowe Machine Learning (SUML)**
-Polsko-Japońska Akademia Technik Komputerowych, 2024/2025
+## Autorzy (PJATK 2024/2025)
 
 | Numer indeksu |
 |---------------|

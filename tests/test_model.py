@@ -9,7 +9,6 @@ import os
 import sys
 import pytest
 
-# Dodaj katalog główny projektu do ścieżki importów
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app.config import MODEL_PATH
@@ -44,7 +43,6 @@ class TestTrainModel:
     def test_rmse_is_reasonable(self):
         """Sprawdza czy RMSE jest w rozsądnym zakresie."""
         metrics = train_model()
-        # RMSE dla tego zestawu danych powinno być < 100000
         assert metrics["rmse"] < 100000, f"RMSE za wysokie: {metrics['rmse']}"
 
 
@@ -59,19 +57,16 @@ class TestLoadModel:
 
     def test_raises_error_when_no_model(self):
         """Sprawdza czy rzuca błąd gdy brak pliku modelu."""
-        # Tymczasowo zmień ścieżkę modelu
         from app import config
         original_path = config.MODEL_PATH
         config.MODEL_PATH = "/tmp/nonexistent_model.pkl"
 
-        # Odśwież ścieżkę w module predict
         from model import predict as predict_module
         predict_module.MODEL_PATH = config.MODEL_PATH
 
         with pytest.raises(FileNotFoundError):
             load_model()
 
-        # Przywróć oryginalną ścieżkę
         config.MODEL_PATH = original_path
         predict_module.MODEL_PATH = original_path
 
@@ -116,7 +111,6 @@ class TestPrediction:
         price_cheap = predict_price(features.head(1))
         price_expensive = predict_price(features.tail(1))
 
-        # Predykcje powinny się różnić
         assert price_cheap != price_expensive
 
 

@@ -11,7 +11,6 @@ import pytest
 import numpy as np
 import pandas as pd
 
-# Dodaj katalog główny projektu do ścieżki importów
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from data.preprocess import (
@@ -68,7 +67,6 @@ class TestCreateEngineeredFeatures:
         df = create_sample_dataframe()
         result = create_engineered_features(df)
 
-        # TotalSF = 1st Flr SF + 2nd Flr SF + Total Bsmt SF
         expected_first_row = 1000 + 500 + 800
         assert result["TotalSF"].iloc[0] == expected_first_row
 
@@ -77,7 +75,6 @@ class TestCreateEngineeredFeatures:
         df = create_sample_dataframe()
         result = create_engineered_features(df)
 
-        # TotalBathrooms = Full Bath + 0.5 * Half Bath + Bsmt Full Bath + 0.5 * Bsmt Half Bath
         expected_first_row = 2 + 0.5 * 1 + 1 + 0.5 * 0
         assert result["TotalBathrooms"].iloc[0] == expected_first_row
 
@@ -86,7 +83,6 @@ class TestCreateEngineeredFeatures:
         df = create_sample_dataframe()
         result = create_engineered_features(df)
 
-        # HouseAge = Yr Sold - Year Built
         expected_first_row = 2010 - 1990
         assert result["HouseAge"].iloc[0] == expected_first_row
 
@@ -95,9 +91,7 @@ class TestCreateEngineeredFeatures:
         df = create_sample_dataframe()
         result = create_engineered_features(df)
 
-        # Pierwszy dom: Year Remod/Add (2000) != Year Built (1990) → 1
         assert result["IsRemodeled"].iloc[0] == 1
-        # Drugi dom: Year Remod/Add (2005) == Year Built (2005) → 0
         assert result["IsRemodeled"].iloc[1] == 0
 
     def test_handles_missing_values(self):
@@ -108,7 +102,6 @@ class TestCreateEngineeredFeatures:
 
         result = create_engineered_features(df)
 
-        # TotalSF powinno być obliczone z fillna(0)
         expected = 0 + 500 + 0
         assert result["TotalSF"].iloc[0] == expected
 
@@ -121,7 +114,6 @@ class TestEncodeQualityColumns:
         df = create_sample_dataframe()
         result = encode_quality_columns(df)
 
-        # "Gd" → 4, "TA" → 3, "Ex" → 5
         assert result["Exter Qual"].iloc[0] == 4
         assert result["Exter Qual"].iloc[1] == 3
         assert result["Exter Qual"].iloc[2] == 5
@@ -131,7 +123,6 @@ class TestEncodeQualityColumns:
         df = create_sample_dataframe()
         result = encode_quality_columns(df)
 
-        # Bsmt Qual trzeci wiersz = None → 0
         assert result["Bsmt Qual"].iloc[2] == 0
 
 
@@ -201,8 +192,8 @@ class TestBuildPreprocessingPipeline:
         feature_cols = available_numeric + available_categorical
         result = pipeline.fit_transform(df[feature_cols])
 
-        assert result.shape[0] == 3  # 3 wiersze
-        assert result.shape[1] > 0   # Przynajmniej 1 cecha po transformacji
+        assert result.shape[0] == 3
+        assert result.shape[1] > 0
 
 
 if __name__ == "__main__":
