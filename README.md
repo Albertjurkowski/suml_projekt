@@ -1,6 +1,6 @@
 # Inteligentna Wycena Domów Jednorodzinnych
 
-Aplikacja webowa do wyceny nieruchomości na podstawie modelu regresji liniowej, wytrenowanego na danych z Ames, Iowa (USA). Projekt realizowany w ramach przedmiotu **Środowiska Uruchomieniowe Machine Learning (SUML)**.
+Aplikacja webowa do wyceny nieruchomości na podstawie modelu regresji liniowej, wytrenowanego na danych z Ames, Iowa (USA).
 
 ---
 
@@ -26,6 +26,8 @@ Aby uruchomić aplikację, wykonaj następujące kroki:
 Skrypt automatycznie utworzy środowisko wirtualne Python, zainstaluje niezbędne biblioteki oraz uruchomi serwer.
 
 Po pomyślnym uruchomieniu przeglądarka otworzy się automatycznie. Jeśli tak się nie stanie, otwórz przeglądarkę ręcznie i przejdź pod adres: **[http://localhost:8000](http://localhost:8000)**.
+
+Aby zatrzymać aplikację, wróć do okna terminala i naciśnij **Ctrl+C** (Windows/Linux) lub **Cmd+C** (macOS).
 
 ---
 
