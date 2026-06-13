@@ -55,11 +55,18 @@ Rozpakuj pobrane archiwum `.zip` i wykonaj poniższe kroki w zależności od sys
 1. Otwórz **Terminal** (np. poprzez wyszukiwarkę Spotlight: `Cmd + Spacja` i wpisanie "Terminal").
 2. Wpisz komendę `cd` (ze spacją na końcu).
 3. Przeciągnij i upuść rozpakowany folder z aplikacji Finder do okna Terminala, a następnie wciśnij klawisz `Enter`.
-4. Uruchom program, wpisując komendę:
+4. (Opcjonalnie) Jeśli macOS zablokuje uruchomienie aplikacji od niezidentyfikowanego twórcy (z powodu kwarantanny), usuń flagę kwarantanny komendą:
+   ```bash
+   xattr -cr .
+   ```
+   *Alternatywnie, możesz podać pełną ścieżkę do pobranego katalogu, na przykład:*
+   ```bash
+   xattr -cr /Users/username/Downloads/Wycena-Mac/
+   ```
+5. Uruchom program, wpisując komendę:
    ```bash
    ./WycenaNieruchomosci
    ```
-   *Wskazówka: Jeśli macOS zablokuje uruchomienie aplikacji od niezidentyfikowanego twórcy, przejdź do Ustawienia systemowe -> Prywatność i bezpieczeństwo i kliknij przycisk "Otwórz mimo to" (Open Anyway).*
 
 #### Linux
 1. Otwórz terminal wewnątrz rozpakowanego katalogu.
